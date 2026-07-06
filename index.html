@@ -1,86 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <link rel="icon" type="image/png" href="ajuda.icon.webp">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helpdesk - Abrir Chamado</title>
-<style>
-    body { 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        background-color: #f4f6f9; 
-        margin: 0; 
-        padding: 15px; /* Reduzido ligeiramente para dar mais espaço nas bordas do celular */
-        display: flex; 
-        justify-content: center; 
-    }
-    .helpdesk-card { 
-        background: white; 
-        padding: 20px; /* Reduzido de 30px para 20px para aproveitar melhor as telas estreitas */
-        border-radius: 8px; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-        width: 100%; 
-        max-width: 500px; 
-    }
-    h2 { 
-        margin-top: 0; 
-        color: #0056b3; 
-        border-bottom: 2px solid #0056b3; 
-        padding-bottom: 10px; 
-        font-size: 22px; /* Tamanho ideal para títulos em mobile */
-    }
-    label { 
-        display: block; 
-        margin: 16px 0 6px; 
-        font-weight: bold; 
-        color: #555; 
-        font-size: 14px;
-    }
-    input, select, textarea { 
-        width: 100%; 
-        padding: 12px; /* Aumentado de 10px para 12px para melhor área de toque */
-        border: 1px solid #ccc; 
-        border-radius: 6px; 
-        box-sizing: border-box; 
-        font-size: 16px; /* ATENÇÃO: 16px impede o zoom automático indesejado no iPhone (iOS) */
-    }
-    textarea { 
-        resize: vertical; 
-    }
-    button { 
-        width: 100%; 
-        background-color: #0056b3; 
-        color: white; 
-        border: none; 
-        padding: 14px; /* Aumentado para facilitar o clique com o polegar */
-        font-size: 16px; 
-        font-weight: bold; 
-        border-radius: 6px; 
-        cursor: pointer; 
-        margin-top: 25px; 
-        transition: background 0.2s; 
-        -webkit-appearance: none; /* Garante que o botão não herde estilos nativos do Safari */
-    }
-    button:hover { 
-        background-color: #003d82; 
-    }
-</style>
+    <title>Helpdesk - Identificação</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f6f9; margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .helpdesk-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { margin-top: 0; color: #0056b3; border-bottom: 2px solid #0056b3; padding-bottom: 10px; font-size: 22px; }
+        label { display: block; margin: 16px 0 6px; font-weight: bold; color: #555; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        input:disabled { background-color: #e9ecef; color: #6c757d; }
+        button { width: 100%; background-color: #0056b3; color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 25px; -webkit-appearance: none; }
+        button:hover { background-color: #003d82; }
+        .oculto { display: none; }
+        .loading { color: #0056b3; font-weight: bold; margin-top: 10px; display: none; }
+    </style>
 </head>
 <body>
 
     <div class="helpdesk-card">
-        <h2>Suporte Técnico - Novo Chamado</h2>
+        <h2>Suporte Técnico</h2>
         
-        <!-- Substitua a URL abaixo pelo link do seu Web App do Google Script -->
-        <form id="meuFormulario" action="https://script.google.com/macros/s/AKfycbzSxH_2dsm1Q9ktfup7ImL1nUjsB8tgT-7mYTwj-oVnyPbyGL8_a9ZdCCVCmZJCvIEasA/exec">
-            
-           <!-- Campo Nome: adicionado autocapitalize para ajudar a iniciar com letra maiúscula -->
-<label for="nome">Nome do Usuário:</label>
-<input type="text" id="nome" name="nome" placeholder="Seu nome completo" autocapitalize="words" required>
+        <!-- PASSO 1: TELA DE IDENTIFICAÇÃO -->
+        <div id="bloco-identificacao">
+            <label for="identificacao">Digite seu CPF ou Matrícula:</label>
+            <input type="text" id="identificacao" placeholder="Apenas números">
+            <div id="status-busca" class="loading">Buscando cadastro...</div>
+            <button type="button" onclick="buscarUsuario()">Acessar Formulário</button>
+        </div>
 
-<!-- Campo Email: adicionado autocomplete para o celular sugerir os emails do usuário salvos no aparelho -->
-<label for="email">E-mail de Contato:</label>
-<input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" required>
+        <!-- PASSO 2: FORMULÁRIO DE CHAMADO (INICIA OCULTO) -->
+        <form id="meuFormulario" class="oculto">
+            
+            <label for="nome">Nome do Usuário:</label>
+            <!-- Usamos disabled para o usuário não alterar o nome vindo do banco -->
+            <input type="text" id="nome" name="nome" readonly required>
+
+            <label for="email">E-mail de Contato:</label>
+            <input type="email" id="email" name="email" readonly required>
 
             <label for="categoria">Categoria do Problema:</label>
             <select id="categoria" name="categoria" required>
@@ -102,40 +60,75 @@
             <label for="descricao">Descrição do Problema:</label>
             <textarea id="descricao" name="descricao" rows="5" placeholder="Detalhe o que está acontecendo..." required></textarea>
 
-            <button type="submit">Enviar Chamado</button>
+            <button type="submit" id="btnEnviar">Enviar Chamado</button>
         </form>
     </div>
-<script>
-    document.getElementById('meuFormulario').addEventListener('submit', function(e) {
-        e.preventDefault(); // Impede o travamento/recarregamento padrão
-        
-        var botao = this.querySelector('button');
-        var textoOriginal = botao.innerText;
-        
-        botao.disabled = true;
-        botao.innerText = 'Enviando...';
 
-        var formData = new FormData(this);
+    <script>
+        // COLE AQUI A URL DO SEU GOOGLE SCRIPT DO NOVO DEPLOY
+        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbzjQ9c5L0ON16ytQHz2z9rYV4a2VuwnKqLQet5kH6A90GIuUjlc8s3RHL8x3rBjAnDgfQ/exec';
 
-        // URL do seu Google Script
-        fetch('https://script.google.com/macros/s/AKfycbzjQ9c5L0ON16ytQHz2z9rYV4a2VuwnKqLQet5kH6A90GIuUjlc8s3RHL8x3rBjAnDgfQ/exec', {
-            method: 'POST',
-            body: formData,
-            mode: 'no-cors' // Essencial para o celular não bloquear o Google Scripts
-        })
-        .then(() => {
-            alert('Chamado enviado com sucesso!');
-            this.reset(); // Limpa o formulário
-        })
-        .catch(error => {
-            alert('Erro ao enviar. Tente novamente.');
-            console.error(error);
-        })
-        .finally(() => {
-            botao.disabled = false;
-            botao.innerText = textOriginal;
+        // Função que busca os dados na Planilha
+        function buscarUsuario() {
+            var idInput = document.getElementById('identificacao').value.trim();
+            if(!idInput) { alert('Por favor, digite sua identificação.'); return; }
+
+            document.getElementById('status-busca').style.display = 'block';
+
+            fetch(`${URL_SCRIPT}?busca=${idInput}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('status-busca').style.display = 'none';
+                if(data.encontrado) {
+                    // Preenche os campos ocultos do formulário
+                    document.getElementById('nome').value = data.nome;
+                    document.getElementById('email').value = data.email;
+                    
+                    // Mostra o formulário e esconde a busca
+                    document.getElementById('bloco-identificacao').classList.add('oculto');
+                    document.getElementById('meuFormulario').classList.remove('oculto');
+                } else {
+                    alert('Identificação não encontrada no banco de dados.');
+                }
+            })
+            .catch(err => {
+                document.getElementById('status-busca').style.display = 'none';
+                alert('Erro ao conectar ao banco de dados.');
+                console.error(err);
+            });
+        }
+
+        // Envio do formulário via POST
+        document.getElementById('meuFormulario').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var btn = document.getElementById('btnEnviar');
+            btn.disabled = true;
+            btn.innerText = 'Enviando chamado...';
+
+            var formData = new FormData(this);
+
+            fetch(URL_SCRIPT, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                alert('Chamado aberto com sucesso!');
+                // Retorna para a tela de identificação inicial
+                this.reset();
+                document.getElementById('meuFormulario').classList.add('oculto');
+                document.getElementById('identificacao').value = '';
+                document.getElementById('bloco-identificacao').classList.remove('oculto');
+            })
+            .catch(error => {
+                alert('Erro ao enviar.');
+                console.error(error);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = 'Enviar Chamado';
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>
