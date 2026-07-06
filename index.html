@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <link rel="icon" type="image/png" href="ajuda.icon.webp">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk - Abrir Chamado</title>
+<style>
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        background-color: #f4f6f9; 
+        margin: 0; 
+        padding: 15px; /* Reduzido ligeiramente para dar mais espaço nas bordas do celular */
+        display: flex; 
+        justify-content: center; 
+    }
+    .helpdesk-card { 
+        background: white; 
+        padding: 20px; /* Reduzido de 30px para 20px para aproveitar melhor as telas estreitas */
+        border-radius: 8px; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        width: 100%; 
+        max-width: 500px; 
+    }
+    h2 { 
+        margin-top: 0; 
+        color: #0056b3; 
+        border-bottom: 2px solid #0056b3; 
+        padding-bottom: 10px; 
+        font-size: 22px; /* Tamanho ideal para títulos em mobile */
+    }
+    label { 
+        display: block; 
+        margin: 16px 0 6px; 
+        font-weight: bold; 
+        color: #555; 
+        font-size: 14px;
+    }
+    input, select, textarea { 
+        width: 100%; 
+        padding: 12px; /* Aumentado de 10px para 12px para melhor área de toque */
+        border: 1px solid #ccc; 
+        border-radius: 6px; 
+        box-sizing: border-box; 
+        font-size: 16px; /* ATENÇÃO: 16px impede o zoom automático indesejado no iPhone (iOS) */
+    }
+    textarea { 
+        resize: vertical; 
+    }
+    button { 
+        width: 100%; 
+        background-color: #0056b3; 
+        color: white; 
+        border: none; 
+        padding: 14px; /* Aumentado para facilitar o clique com o polegar */
+        font-size: 16px; 
+        font-weight: bold; 
+        border-radius: 6px; 
+        cursor: pointer; 
+        margin-top: 25px; 
+        transition: background 0.2s; 
+        -webkit-appearance: none; /* Garante que o botão não herde estilos nativos do Safari */
+    }
+    button:hover { 
+        background-color: #003d82; 
+    }
+</style>
+</head>
+<body>
+
+    <div class="helpdesk-card">
+        <h2>Suporte Técnico - Novo Chamado</h2>
+        
+        <!-- Substitua a URL abaixo pelo link do seu Web App do Google Script -->
+        <form id="meuFormulario" action="https://script.google.com/macros/s/AKfycbzSxH_2dsm1Q9ktfup7ImL1nUjsB8tgT-7mYTwj-oVnyPbyGL8_a9ZdCCVCmZJCvIEasA/exec">
+            
+           <!-- Campo Nome: adicionado autocapitalize para ajudar a iniciar com letra maiúscula -->
+<label for="nome">Nome do Usuário:</label>
+<input type="text" id="nome" name="nome" placeholder="Seu nome completo" autocapitalize="words" required>
+
+<!-- Campo Email: adicionado autocomplete para o celular sugerir os emails do usuário salvos no aparelho -->
+<label for="email">E-mail de Contato:</label>
+<input type="email" id="email" name="email" placeholder="seu@email.com" autocomplete="email" required>
+
+            <label for="categoria">Categoria do Problema:</label>
+            <select id="categoria" name="categoria" required>
+                <option value="">Selecione uma opção...</option>
+                <option value="Sistemas / Software">Sistemas / Software</option>
+                <option value="Hardware / Computador">Hardware / Computador</option>
+                <option value="Internet / Rede">Internet / Rede</option>
+                <option value="Acessos / Senhas">Acessos / Senhas</option>
+                <option value="Outros">Outros</option>
+            </select>
+
+            <label for="prioridade">Prioridade:</label>
+            <select id="prioridade" name="prioridade" required>
+                <option value="Baixa">Baixa (Dúvidas ou melhorias)</option>
+                <option value="Média">Média (Atrapalha o trabalho, mas funciona)</option>
+                <option value="Alta">Alta (Trabalho totalmente interrompido)</option>
+            </select>
+
+            <label for="descricao">Descrição do Problema:</label>
+            <textarea id="descricao" name="descricao" rows="5" placeholder="Detalhe o que está acontecendo..." required></textarea>
+
+            <button type="submit">Enviar Chamado</button>
+        </form>
+    </div>
+<script>
+    document.getElementById('meuFormulario').addEventListener('submit', function(e) {
+        e.preventDefault(); // Impede o travamento/recarregamento padrão
+        
+        var botao = this.querySelector('button');
+        var textoOriginal = botao.innerText;
+        
+        botao.disabled = true;
+        botao.innerText = 'Enviando...';
+
+        var formData = new FormData(this);
+
+        // URL do seu Google Script
+        fetch('https://script.google.com/macros/s/AKfycbzjQ9c5L0ON16ytQHz2z9rYV4a2VuwnKqLQet5kH6A90GIuUjlc8s3RHL8x3rBjAnDgfQ/exec', {
+            method: 'POST',
+            body: formData,
+            mode: 'no-cors' // Essencial para o celular não bloquear o Google Scripts
+        })
+        .then(() => {
+            alert('Chamado enviado com sucesso!');
+            this.reset(); // Limpa o formulário
+        })
+        .catch(error => {
+            alert('Erro ao enviar. Tente novamente.');
+            console.error(error);
+        })
+        .finally(() => {
+            botao.disabled = false;
+            botao.innerText = textOriginal;
+        });
+    });
+</script>
+</body>
+</html>
